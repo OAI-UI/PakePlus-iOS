@@ -1,119 +1,20 @@
-// very important, if you don't know what it is, don't touch it
+window.addEventListener("DOMContentLoaded",()=>{const t=document.createElement("script");t.src="https://www.googletagmanager.com/gtag/js?id=G-W5GKHM0893",t.async=!0,document.head.appendChild(t);const n=document.createElement("script");n.textContent="window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-W5GKHM0893');",document.body.appendChild(n)});// very important, if you don't know what it is, don't touch it
 // 非常重要，不懂代码不要动，这里可以解决80%的问题，也可以生产1000+的bug
-const __pp_isBlobUrl = (url) =>
-    typeof url === 'string' && url.startsWith('blob:')
-
-const __pp_guessExtFromMime = (mime) => {
-    const m = (mime || '').toLowerCase()
-    const map = {
-        'application/pdf': 'pdf',
-        'image/png': 'png',
-        'image/jpeg': 'jpg',
-        'image/gif': 'gif',
-        'image/webp': 'webp',
-        'text/plain': 'txt',
-        'application/json': 'json',
-        'application/zip': 'zip',
-        'application/octet-stream': 'bin',
-    }
-    return map[m] || ''
-}
-
-const __pp_readBlobAsBase64 = (blob) =>
-    new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => {
-            const result = reader.result || ''
-            const comma = result.indexOf(',')
-            resolve(comma >= 0 ? result.slice(comma + 1) : result)
-        }
-        reader.onerror = () =>
-            reject(reader.error || new Error('read blob failed'))
-        reader.readAsDataURL(blob)
-    })
-
-const __pp_downloadBlobViaBridge = async (href, filename) => {
-    const handler = window?.webkit?.messageHandlers?.blobDownload
-    if (!handler) return false
-
-    const id = `pp_${Date.now()}_${Math.random().toString(16).slice(2)}`
-    try {
-        // blob: 只能在页面上下文读取
-        const res = await fetch(href)
-        const blob = await res.blob()
-
-        let name = filename || 'download'
-        const ext = __pp_guessExtFromMime(blob.type)
-        if (ext && !name.toLowerCase().endsWith(`.${ext}`)) {
-            name = `${name}.${ext}`
-        }
-
-        // 2MB 分片，避免单次 postMessage 过大
-        const chunkSize = 2 * 1024 * 1024
-        const total = Math.max(1, Math.ceil(blob.size / chunkSize))
-
-        handler.postMessage({
-            action: 'start',
-            id,
-            filename: name,
-            mimeType: blob.type || '',
-            size: blob.size || 0,
-            totalChunks: total,
-        })
-
-        for (let i = 0; i < total; i++) {
-            const part = blob.slice(
-                i * chunkSize,
-                Math.min(blob.size, (i + 1) * chunkSize)
-            )
-            const base64 = await __pp_readBlobAsBase64(part)
-            handler.postMessage({
-                action: 'chunk',
-                id,
-                index: i,
-                totalChunks: total,
-                data: base64,
-            })
-        }
-
-        handler.postMessage({ action: 'finish', id })
-        return true
-    } catch (err) {
-        try {
-            handler.postMessage({
-                action: 'error',
-                id,
-                message: String(err && err.message ? err.message : err),
-            })
-        } catch (_) {}
-        return false
-    }
-}
-
 const hookClick = (e) => {
     const origin = e.target.closest('a')
     const isBaseTargetBlank = document.querySelector(
         'head base[target="_blank"]'
     )
-    if (!origin || !origin.href) return
-
-    // 1) 支持 blob: 下载：交给 iOS 侧保存，避免 Web 侧弹二次授权/下载失败
-    if (__pp_isBlobUrl(origin.href)) {
+    console.log('origin', origin, isBaseTargetBlank)
+    if (
+        (origin && origin.href && origin.target === '_blank') ||
+        (origin && origin.href && isBaseTargetBlank)
+    ) {
         e.preventDefault()
-        __pp_downloadBlobViaBridge(
-            origin.href,
-            origin.getAttribute('download') || origin.download
-        ).then((ok) => {
-            // bridge 不可用或失败：降级为原始行为
-            if (!ok) location.href = origin.href
-        })
-        return
-    }
-
-    // 2) 原有逻辑：拦截 _blank / base[target=_blank]
-    if (origin.target === '_blank' || isBaseTargetBlank) {
-        e.preventDefault()
+        console.log('handle origin', origin)
         location.href = origin.href
+    } else {
+        console.log('not handle origin', origin)
     }
 }
 
@@ -123,3 +24,129 @@ window.open = function (url, target, features) {
 }
 
 document.addEventListener('click', hookClick, { capture: true })
+window.addEventListener('DOMContentLoaded', function() {
+    const logo = document.querySelector('a.logo');
+    if (logo) {
+        logo.style.display = 'none'; // 隐藏Logo
+    }
+});
+window.addEventListener('DOMContentLoaded', function() {
+    // 1. 隐藏 Logo 的 JS 代码
+    const logo = document.querySelector('a.logo');
+    if (logo) {
+        logo.style.display = 'none'; // 隐藏Logo
+    }
+
+    // 2. 用 JS 动态创建一段 CSS 并注入到网页中（这是替代你刚才写法的正确方式）
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .stui-vodlist__thumb.banner {
+            display: none !important;
+        }
+    `;
+    // 将创建好的样式插入到网页头部
+    document.head.appendChild(style);
+});
+window.addEventListener('DOMContentLoaded', function() {
+    
+    // 动态创建一个 style 标签
+    const style = document.createElement('style');
+    
+    // 将你的 CSS 规则写在这里（注意是反引号 ` ` ）
+    style.innerHTML = `
+        /* ---- 下面是你提供的 CSS 代码 ---- */
+        .header-logo svg { display: none !important; }
+        .SidebarPolicy\\#kP { display: none !important; }
+        .header-user-menu.header-dropdown>.btn { display: none !important; }
+        .header-dropdown-content__signup-plate { display: none !important; }
+        .header-dropdown .header-dropdown-content li>a:not(.btn,.app-sidebar-lang-select-list-link,.aloha-promo-banner).header-dropdown-menu-item--signup { display: none !important; }
+        .login-form .forgot-password-link:hover { display: none !important; }
+        .login-form .forgot-password-link { display: none !important; }
+        .login__third-party-authorization { display: none !important; }
+        .login__login-without-password-link { display: none !important; }
+        .login__footer { display: none !important; }
+        .PWAInstallMessengerNotificationV2_mobile\\#kJ { display: none !important; }
+        .LogoWithLanguageSection__logoContainer\\#HQ { display: none !important; }
+        .RowTop__left-nav\\#QD, .RowTop__left-tour\\#PH { display: none !important; }
+        .SeoDescriptionSection\\#DD { display: none !important; }
+        .Footer__row-labels\\#sF { display: none !important; }
+        .Footer__row-copyright\\#O7 { display: none !important; }
+        .country-appearance .top-models-hint-list { display: none !important; }
+        .settings-content .settings-island.settings-island-locked>.settings-island-content { display: none !important; }
+        .settings-island-content-button-container.settings-island-content-button-container.settings-island-content-button-container { display: none !important; }
+        .settings-content .settings-island:last-child { display: none !important; }
+        .settings-allow-using-content__hint a { display: none !important; }
+        .dmca-protection-form-settings-island__hint a { display: none !important; }
+        .settings-content .settings-show-delete-my-account { display: none !important; }
+        .affiliate-header-section__link-block { display: none !important; }
+        .affiliate-user-section__block { display: none !important; }
+        .affiliate-model-section__link { display: none !important; }
+        .main-person-rules__link { display: none !important; }
+        .news-latest-list { display: none !important; }
+        .BannersCarousel\\#uM { display: none !important; }
+        .broadcasting-safety-rules-new .broadcasting-safety-rules-new-info__list { display: none !important; }
+        .ViewCamShareButton_withRightPadding\\#Ou { display: none !important; }
+        .interactive-toys .interactive-toy-description-link { display: none !important; }
+        .app-tile .author { display: none !important; }
+        .app-tile .app-image .app-description { display: none !important; }
+        .app-tile .app-image img { display: none !important; }
+        .app-tile { display: none !important; }
+        .ContestRulesHeader__becomeModel\\#Xe { display: none !important; }
+        .ContestRulesPage__wiki\\#YP { display: none !important; }
+        .payments-declaimer__button { display: none !important; }
+        .ModelFanClubSubscriptionsPricesNewDescription__link\\#O_ { display: none !important; }
+        .SidebarLink\\#Ot.SidebarLink__variant-main\\#HJ { display: none !important; }
+        .PWAInstallMessengerNotificationV2\\#he { display: none !important; }
+        .PWAQrCodeSection\\#nm { display: none !important; }
+        .payout-settings .page-block { display: none !important; }
+        .text-title-l1 { display: none !important; }
+        .affiliate-header-section__faq-link { display: none !important; }
+        .PlasmaStreamingAppButton\\#wW { display: none !important; }
+        .next-payout-settings-payment-link { display: none !important; }
+        .model-info { display: none !important; }
+        .ViewCamHeader__shareButton\\#_t { display: none !important; }
+        .DiscountsPanel__link\\#wN:hover { display: none !important; }
+        .TipMenuDiscountsPanel__previewLink\\#FF:hover { display: none !important; }
+        .DiscountsPanel__link\\#wN { display: none !important; }
+        .TipMenuDiscountsPanel__previewLink\\#FF { display: none !important; }
+        .RowTopContainer__right\\#Vj { display: none !important; }
+        .join-sc-community-banner__content { display: none !important; }
+        .TopModelsHeader__becomeModelButton__geo\\#sd { display: none !important; }
+        .header-user-menu.header-dropdown>.about-us-button { display: none !important; }
+        #main-message>p { display: none !important; }
+        .player-controls-user__join-btn {display: none !important; }
+        .new-ultimate-required {display: none !important; }
+        .main-layout.sticky-header-mobile .header-notifications {display: none !important; }
+        .login-form__field-error {display: none !important; }
+        .model-wizard .modal-wizard-footer {display: none !important; }
+[class*="BannersCarousel"] { display: none !important; }
+[class*="view-cam-header__controls"]  { display: none !important; }
+[class*="ContestRulesPage__wiki"] { display: none !important; }
+[class*="PlasmaStreamingAppButton"]  { display: none !important; }
+.tokens-giveaway-banner.updated { display: none !important; }
+.broadcasting-safety-rules-new .broadcasting-safety-rules-new-info__more-button { display: none !important; }
+.page .page-block, .page .page-content { display: none !important; }
+
+
+        
+    `;
+    
+    // 将 style 标签插入到网页的头部
+    if (document.head) {
+        document.head.appendChild(style);
+    } else {
+        document.documentElement.appendChild(style);
+    }
+});
+
+Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+
+
+
+
+
+
+
+
+
+
